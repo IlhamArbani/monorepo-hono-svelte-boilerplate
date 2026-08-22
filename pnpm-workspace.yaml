@@ -1,0 +1,7 @@
+# pnpm-workspace.yaml
+packages:
+  - "apps/*"
+  - "packages/*"
+allowBuilds:
+  bcrypt: false
+  esbuild: false

@@ -2,7 +2,6 @@ import {
   pgTable,
   uuid,
   varchar,
-  text,
   integer,
   boolean,
   timestamp,
@@ -29,9 +28,7 @@ export const experiences = pgTable("experiences", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  jobTitle: varchar("job_title", { length: 255 }).notNull(),
   organization: varchar("organization", { length: 255 }).notNull(),
-  highlights: text("highlights"),
   location: varchar("location", { length: 255 }),
   locationType: locationTypeEnum("location_type").notNull().default("onsite"),
   employmentType: employmentTypeEnum("employment_type")

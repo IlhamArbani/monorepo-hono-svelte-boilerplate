@@ -2,7 +2,6 @@ import {
   pgTable,
   uuid,
   varchar,
-  text,
   timestamp,
   pgEnum,
 } from "drizzle-orm/pg-core";
@@ -15,10 +14,7 @@ export const articleStatusEnum = pgEnum("article_status", [
 
 export const articles = pgTable("articles", {
   id: uuid("id").primaryKey().defaultRandom(),
-  title: varchar("title", { length: 255 }).notNull(),
   coverImage: varchar("cover_image", { length: 500 }),
-  description: text("description"),
-  content: text("content").notNull(),
   authorId: uuid("author_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

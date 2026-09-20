@@ -4,8 +4,13 @@ import { ArticlesRepository } from "./articles.repository";
 export class ArticlesService {
   constructor(private readonly repository: ArticlesRepository) {}
 
-  async findAll() {
-    const articleList = await this.repository.findAll();
+  async findAll(locale?: string) {
+    let articleList;
+    if (locale) {
+      articleList = await this.repository.findAllByLocale(locale);
+    } else {
+      articleList = await this.repository.findAll();
+    }
     return articleList.map((article: any) => {
       if (article.author) {
         const { password, ...author } = article.author;
@@ -30,15 +35,12 @@ export class ArticlesService {
   }
 
   async create(authorId: string, body: any) {
-    const { title, coverImage, description, content, status, categoryIds } = body;
+    const { coverImage, status, categoryIds, translations } = body;
     const [article] = await this.repository.create({
-      title,
       coverImage,
-      description,
-      content,
       status,
       authorId,
-    });
+    }, translations || []);
 
     if (categoryIds && categoryIds.length > 0) {
       await this.repository.createCategories(
@@ -52,17 +54,14 @@ export class ArticlesService {
   }
 
   async update(id: string, body: any) {
-    const { title, coverImage, description, content, status, categoryIds } = body;
+    const { coverImage, status, categoryIds, translations } = body;
     const updateData: Record<string, unknown> = {};
-    if (title !== undefined) updateData.title = title;
     if (coverImage !== undefined) updateData.coverImage = coverImage;
-    if (description !== undefined) updateData.description = description;
-    if (content !== undefined) updateData.content = content;
     if (status !== undefined) updateData.status = status;
 
     let article;
     if (Object.keys(updateData).length > 0) {
-      const [updated] = await this.repository.update(id, updateData);
+      const [updated] = await this.repository.update(id, updateData, translations);
       if (!updated) {
         throw new HTTPException(404, { message: "Article not found" });
       }
@@ -73,6 +72,9 @@ export class ArticlesService {
         throw new HTTPException(404, { message: "Article not found" });
       }
       article = existing;
+      if (translations !== undefined) {
+        await this.repository.update(id, {}, translations);
+      }
     }
 
     if (categoryIds !== undefined) {

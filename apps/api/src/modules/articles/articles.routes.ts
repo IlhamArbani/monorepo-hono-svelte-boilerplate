@@ -10,7 +10,8 @@ const repository = new ArticlesRepository();
 const service = new ArticlesService(repository);
 
 articlesRoutes.get("/", async (c) => {
-  const data = await service.findAll();
+  const locale = c.req.query("locale");
+  const data = await service.findAll(locale);
   return c.json({ data });
 });
 

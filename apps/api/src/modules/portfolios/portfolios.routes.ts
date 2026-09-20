@@ -10,13 +10,15 @@ const repository = new PortfoliosRepository();
 const service = new PortfoliosService(repository);
 
 router.get("/", async (c) => {
-  const data = await service.findAll();
+  const locale = c.req.query("locale");
+  const data = await service.findAll(locale);
   return c.json({ data });
 });
 
 router.get("/:id", async (c) => {
   const id = c.req.param("id");
-  const data = await service.findById(id);
+  const locale = c.req.query("locale");
+  const data = await service.findById(id, locale);
   return c.json({ data });
 });
 

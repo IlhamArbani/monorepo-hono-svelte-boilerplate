@@ -4,36 +4,41 @@ import { ExperiencesRepository } from "./experiences.repository";
 export class ExperiencesService {
   constructor(private readonly repository: ExperiencesRepository) {}
 
-  async findAll() {
+  async findAll(locale?: string) {
     const allExperiences = await this.repository.findAll();
     return allExperiences.map((exp: any) => {
-      if (exp.user) {
-        const { password: _, ...userWithoutPassword } = exp.user;
-        return { ...exp, user: userWithoutPassword };
+      let data = { ...exp };
+      if (data.user) {
+        const { password: _, ...userWithoutPassword } = data.user;
+        data.user = userWithoutPassword;
       }
-      return exp;
+      if (locale && data.translations) {
+        data.translations = data.translations.filter((t: any) => t.locale === locale);
+      }
+      return data;
     });
   }
 
-  async findById(id: string) {
+  async findById(id: string, locale?: string) {
     const experience: any = await this.repository.findById(id);
     if (!experience) {
       throw new HTTPException(404, { message: "Experience not found" });
     }
 
-    let data = experience;
-    if (experience.user) {
-      const { password: _, ...userWithoutPassword } = experience.user;
-      data = { ...experience, user: userWithoutPassword };
+    let data = { ...experience };
+    if (data.user) {
+      const { password: _, ...userWithoutPassword } = data.user;
+      data.user = userWithoutPassword;
+    }
+    if (locale && data.translations) {
+      data.translations = data.translations.filter((t: any) => t.locale === locale);
     }
     return data;
   }
 
   async create(userId: string, body: any) {
     const {
-      jobTitle,
       organization,
-      highlights,
       location,
       locationType,
       employmentType,
@@ -44,13 +49,12 @@ export class ExperiencesService {
       isCurrentlyWork,
       skillIds,
       media,
+      translations,
     } = body;
 
     const [newExperience] = await this.repository.create({
       userId,
-      jobTitle,
       organization,
-      highlights,
       location,
       locationType,
       employmentType,
@@ -60,6 +64,17 @@ export class ExperiencesService {
       endYear,
       isCurrentlyWork,
     });
+
+    if (translations && translations.length > 0) {
+      await this.repository.createTranslations(
+        translations.map((t: any) => ({
+          experienceId: newExperience.id,
+          locale: t.locale,
+          jobTitle: t.jobTitle,
+          highlights: t.highlights,
+        }))
+      );
+    }
 
     if (skillIds && skillIds.length > 0) {
       await this.repository.createSkills(
@@ -86,9 +101,7 @@ export class ExperiencesService {
 
   async update(id: string, body: any) {
     const {
-      jobTitle,
       organization,
-      highlights,
       location,
       locationType,
       employmentType,
@@ -99,12 +112,11 @@ export class ExperiencesService {
       isCurrentlyWork,
       skillIds,
       media,
+      translations,
     } = body;
 
     const [updated] = await this.repository.update(id, {
-      jobTitle,
       organization,
-      highlights,
       location,
       locationType,
       employmentType,
@@ -117,6 +129,21 @@ export class ExperiencesService {
 
     if (!updated) {
       throw new HTTPException(404, { message: "Experience not found" });
+    }
+
+    if (translations !== undefined) {
+      await this.repository.deleteTranslationsByExperienceId(id);
+
+      if (translations.length > 0) {
+        await this.repository.createTranslations(
+          translations.map((t: any) => ({
+            experienceId: id,
+            locale: t.locale,
+            jobTitle: t.jobTitle,
+            highlights: t.highlights,
+          }))
+        );
+      }
     }
 
     if (skillIds !== undefined) {

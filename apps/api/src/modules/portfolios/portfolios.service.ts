@@ -4,18 +4,30 @@ import { PortfoliosRepository } from "./portfolios.repository";
 export class PortfoliosService {
   constructor(private readonly repository: PortfoliosRepository) {}
 
-  async findAll() {
+  async findAll(locale?: string) {
     const portfoliosList = await this.repository.findAll();
     return portfoliosList.map((portfolio: any) => {
       const { password: _, ...authorWithoutPassword } = portfolio.author;
+      
+      let translations = portfolio.translations || [];
+      if (locale) {
+        const matchingTranslation = translations.find((t: any) => t.locale === locale);
+        if (matchingTranslation) {
+          translations = [matchingTranslation];
+        } else {
+          translations = [];
+        }
+      }
+      
       return {
         ...portfolio,
+        translations,
         author: authorWithoutPassword,
       };
     });
   }
 
-  async findById(id: string) {
+  async findById(id: string, locale?: string) {
     const portfolio: any = await this.repository.findById(id);
     if (!portfolio) {
       throw new HTTPException(404, { message: "Portfolio not found" });
@@ -23,23 +35,31 @@ export class PortfoliosService {
 
     const { password: _, ...authorWithoutPassword } = portfolio.author;
 
+    let translations = portfolio.translations || [];
+    if (locale) {
+      const matchingTranslation = translations.find((t: any) => t.locale === locale);
+      if (matchingTranslation) {
+        translations = [matchingTranslation];
+      } else {
+        translations = [];
+      }
+    }
+
     return {
       ...portfolio,
+      translations,
       author: authorWithoutPassword,
     };
   }
 
   async create(authorId: string, body: any) {
-    const { title, coverImage, description, content, status, categoryIds, images } = body;
+    const { coverImage, status, categoryIds, images, translations } = body;
 
     const [newPortfolio] = await this.repository.create({
-      title,
       coverImage,
-      description,
-      content,
       status,
       authorId,
-    });
+    }, translations);
 
     if (categoryIds && categoryIds.length > 0) {
       await this.repository.createCategories(
@@ -70,18 +90,15 @@ export class PortfoliosService {
   }
 
   async update(id: string, body: any) {
-    const { title, coverImage, description, content, status, categoryIds, images } = body;
+    const { coverImage, status, categoryIds, images, translations } = body;
 
     const updateData: Record<string, any> = {
       updatedAt: new Date(),
     };
-    if (title !== undefined) updateData.title = title;
     if (coverImage !== undefined) updateData.coverImage = coverImage;
-    if (description !== undefined) updateData.description = description;
-    if (content !== undefined) updateData.content = content;
     if (status !== undefined) updateData.status = status;
 
-    const [updatedPortfolio] = await this.repository.update(id, updateData);
+    const [updatedPortfolio] = await this.repository.update(id, updateData, translations);
 
     if (!updatedPortfolio) {
       throw new HTTPException(404, { message: "Portfolio not found" });

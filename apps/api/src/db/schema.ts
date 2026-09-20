@@ -5,7 +5,9 @@ export { permissions } from "./schema/permissions";
 export { userRoles } from "./schema/user-roles";
 export { rolePermissions } from "./schema/role-permissions";
 export { articles, articleStatusEnum } from "./schema/articles";
+export { articleTranslations } from "./schema/article-translations";
 export { portfolios, portfolioStatusEnum } from "./schema/portfolios";
+export { portfolioTranslations } from "./schema/portfolio-translations";
 export { portfolioImages } from "./schema/portfolio-images";
 export { categories } from "./schema/categories";
 export { articleCategories } from "./schema/article-categories";
@@ -15,6 +17,8 @@ export {
   locationTypeEnum,
   employmentTypeEnum,
 } from "./schema/experiences";
+export { experienceTranslations } from "./schema/experience-translations";
 export { skills } from "./schema/skills";
 export { experienceSkills } from "./schema/experience-skills";
 export { experienceMedia } from "./schema/experience-media";
+

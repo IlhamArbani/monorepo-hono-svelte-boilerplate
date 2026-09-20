@@ -51,7 +51,16 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.articles.authorId,
       to: r.users.id,
     }),
+    translations: r.many.articleTranslations(),
     articleCategories: r.many.articleCategories(),
+  },
+
+  // --- Article Translations ---
+  articleTranslations: {
+    article: r.one.articles({
+      from: r.articleTranslations.articleId,
+      to: r.articles.id,
+    }),
   },
 
   // --- Article Categories (junction) ---
@@ -72,8 +81,17 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.portfolios.authorId,
       to: r.users.id,
     }),
+    translations: r.many.portfolioTranslations(),
     images: r.many.portfolioImages(),
     portfolioCategories: r.many.portfolioCategories(),
+  },
+
+  // --- Portfolio Translations ---
+  portfolioTranslations: {
+    portfolio: r.one.portfolios({
+      from: r.portfolioTranslations.portfolioId,
+      to: r.portfolios.id,
+    }),
   },
 
   // --- Portfolio Images ---
@@ -108,8 +126,17 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.experiences.userId,
       to: r.users.id,
     }),
+    translations: r.many.experienceTranslations(),
     experienceSkills: r.many.experienceSkills(),
     media: r.many.experienceMedia(),
+  },
+
+  // --- Experience Translations ---
+  experienceTranslations: {
+    experience: r.one.experiences({
+      from: r.experienceTranslations.experienceId,
+      to: r.experiences.id,
+    }),
   },
 
   // --- Experience Skills (junction) ---

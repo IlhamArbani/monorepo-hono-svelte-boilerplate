@@ -1,14 +1,20 @@
 <script lang="ts">
   import { _, locale } from 'svelte-i18n'
-  import { experience, faqs } from '$lib/content';
+  import { faqs } from '$lib/content';
   import heroImg from '$lib/assets/hero.webp';
-  import type { PageData } from './$types';
+  import type { PageProps } from './$types';
+	import ExperienceCard from '$lib/components/ExperienceCard.svelte';
 
-  // let { data }: { data: PageData } = $props();
+  let { data }: PageProps = $props();
+
+  console.log('data', data);
+  
 
   const lang = $derived($locale);
   const projects = [] as any;
   const articles = [] as any;
+  const experience = $derived(data.experiences)
+  
 </script>
 
 <div>
@@ -120,18 +126,16 @@
     </div>
     <div class="col-span-12 md:col-span-8 max-h-[650px] overflow-y-auto">
       {#each experience as e, i}
-        <div
-          class="grid grid-cols-12 px-5 md:px-10 py-7 {i < experience.length - 1 ? 'border-b border-border' : ''}"
-        >
-          <div class="col-span-12 md:col-span-3 label-mono text-muted-foreground">
-            {e.period}
-          </div>
-          <div class="col-span-12 md:col-span-9 mt-2 md:mt-0">
-            <p class="font-display text-2xl">{e.role}</p>
-            <p class="text-accent label-mono mt-1">{e.company}</p>
-            <p class="mt-3 text-foreground/70 max-w-xl">{e.description}</p>
-          </div>
-        </div>
+        <ExperienceCard
+          startMonth={e.startMonth}
+          startYear={e.startYear}
+          endMonth={e.endMonth}
+          endYear={e.endYear}
+          role={e.position}
+          company={e.organization}
+          description={e.description}
+          isLast={i === experience.length - 1}
+        />
       {/each}
     </div>
   </section>

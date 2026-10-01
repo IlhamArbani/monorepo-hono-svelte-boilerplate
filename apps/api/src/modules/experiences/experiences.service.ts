@@ -4,17 +4,11 @@ import { ExperiencesRepository } from "./experiences.repository";
 export class ExperiencesService {
   constructor(private readonly repository: ExperiencesRepository) {}
 
-  async findAll(locale?: string) {
-    const allExperiences = await this.repository.findAll();
+  async findAll(lang?: string) {
+    const allExperiences = await this.repository.findAll(lang);
     return allExperiences.map((exp: any) => {
-      let data = { ...exp };
-      if (data.user) {
-        const { password: _, ...userWithoutPassword } = data.user;
-        data.user = userWithoutPassword;
-      }
-      if (locale && data.translations) {
-        data.translations = data.translations.filter((t: any) => t.locale === locale);
-      }
+      const {userId, ...data} = exp;
+      
       return data;
     });
   }

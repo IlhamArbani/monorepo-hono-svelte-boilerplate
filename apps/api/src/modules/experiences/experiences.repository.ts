@@ -6,27 +6,36 @@ import { experienceTranslations } from "../../db/schema/experience-translations"
 import { eq } from "drizzle-orm";
 
 export class ExperiencesRepository {
-  async findAll() {
+  async findAll(locale: string = 'id') {
     return await db.query.experiences.findMany({
       with: {
-        user: true,
-        translations: true,
         experienceSkills: {
           with: {
             skill: true,
           },
         },
+        translations: {
+          where: {
+            locale: { eq: locale },
+          },
+        },
         media: {
-          orderBy: (fields, { asc }) => asc(fields.sortOrder),
+          orderBy: {
+            sortOrder: 'asc',
+          },
         },
       },
-      orderBy: (fields, { desc }) => desc(fields.startYear),
+      orderBy: {
+        startYear: 'desc',
+      },
     });
   }
 
   async findById(id: string) {
     return await db.query.experiences.findFirst({
-      where: (fields, { eq }) => eq(fields.id, id),
+      where: {
+        id: id,
+      },
       with: {
         user: true,
         translations: true,
@@ -36,7 +45,9 @@ export class ExperiencesRepository {
           },
         },
         media: {
-          orderBy: (fields, { asc }) => asc(fields.sortOrder),
+          orderBy: {
+            sortOrder: 'asc',
+          },
         },
       },
     });

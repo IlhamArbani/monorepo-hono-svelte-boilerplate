@@ -4,7 +4,7 @@ import { PortfoliosRepository } from "./portfolios.repository";
 export class PortfoliosService {
   constructor(private readonly repository: PortfoliosRepository) {}
 
-  async findAll(locale?: string) {
+  async findAll(locale?: string, order?: string) {
     const portfoliosList = await this.repository.findAll();
     return portfoliosList.map((portfolio: any) => {
       const { password: _, ...authorWithoutPassword } = portfolio.author;

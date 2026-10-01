@@ -6,7 +6,7 @@ import { portfolioTranslations } from "../../db/schema/portfolio-translations";
 import { eq } from "drizzle-orm";
 
 export class PortfoliosRepository {
-  async findAll() {
+  async findAll(order: string) {
     return await db.query.portfolios.findMany({
       where: (fields, { eq, and, isNull }) => and(eq(fields.status, "publish"), isNull(fields.deletedAt)),
       with: {
@@ -21,7 +21,7 @@ export class PortfoliosRepository {
           },
         },
       },
-      orderBy: (fields, { desc }) => desc(fields.createdAt),
+      orderBy: order === 'asc' ? (fields, { asc }) => asc(fields.createdAt) : (fields, { desc }) => desc(fields.createdAt),
     });
   }
 

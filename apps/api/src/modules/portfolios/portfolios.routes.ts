@@ -11,7 +11,8 @@ const service = new PortfoliosService(repository);
 
 router.get("/", async (c) => {
   const locale = c.req.query("locale");
-  const data = await service.findAll(locale);
+  const order = c.req.query("order");
+  const data = await service.findAll(locale, order);
   return c.json({ data });
 });
 
